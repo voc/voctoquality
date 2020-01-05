@@ -8,6 +8,11 @@ Can be used to compare encoding quality with different settings or encoders.
 docker build --tag vmaf .
 ```
 
+or use
+```
+docker pull ischluff/vmaf:latest
+```
+
 ## Usage
 Put your formats and custom graphing into a small python module.
 As a reference you can use **data/compare_vaapi_x264.py**.
