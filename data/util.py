@@ -30,7 +30,7 @@ def calc_score(reference, coded, scale=None):
     rate = f"""
 ffmpeg -y -hide_banner -v warning
     -i {coded} -i {reference}
-    -filter_complex "[0:v]{scale_filter}[main]; [main][1:v]libvmaf=log_fmt=json:log_path={scorepath}:n_subsample=5"
+    -filter_complex "[0:v][1:v]libvmaf=log_fmt=json:log_path={scorepath}:n_subsample=3"
     -f null -
 """
     try:
