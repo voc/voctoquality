@@ -14,14 +14,20 @@ docker pull ischluff/vmaf:latest
 ```
 
 ## Usage
-Put your formats and custom graphing into a small python module.
-As a reference you can use **data/compare_vaapi_x264.py**.
+First clone this repo to your machine.
+
+Then put your formats and custom graphing into a small python module.
+As a reference you can use **data/compare_vaapi_h264.py**.
+
 ```bash
+# Start the container
 docker run \
   --rm \
   --privileged \
   -v /dev/dri:/dev/dri \
   -v `pwd`:/root \
   -it vmaf /bin/bash
-./compare_vaapi_x264.py
+
+# Run inside the container
+./compare_vaapi_x264.py reference.nut
 ```

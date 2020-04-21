@@ -127,7 +127,7 @@ def init(formats, plot):
 
     # transcode creates subformats and calculates scores, speed and actual rate
     if args.task == "all" or args.task == "transcode":
-        scores = util.transcode(args.ref, formats, scale=None)
+        scores = transcode(args.ref, formats, scale=None)
         with open("tmp/scores.json", "w") as f:
             json.dump(scores, f)
 
