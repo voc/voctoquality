@@ -26,6 +26,7 @@ def formats():
     -i $ref
     -vf 'format=nv12|vaapi,hwupload'
     -c:v {codec}_vaapi
+    -compression_level:v 1
     -keyint_min:v 75 -g:v 75
     -b:v {rate}k -maxrate:v {rate}k -bufsize {rate}k
 """}
@@ -41,21 +42,6 @@ def formats():
     -threads:v 0 -g:v 75
     -crf:v 21
     -maxrate:v {rate}k -bufsize {rate}k
-"""}
-
-        ret[f"libvpx_vp9_{rate}"] = {
-            "encoder": "libvpx",
-            "codec": "vp9",
-            "rate": rate,
-            "opts": f"""
-    -i $ref
-    -c:v libvpx-vp9
-    -deadline:v realtime -cpu-used:v 8
-    -threads:v 8
-    -frame-parallel:v 1 -tile-columns:v 2
-    -keyint_min:v 75 -g:v 75
-    -crf:v 23
-    -b:v {rate}k -maxrate:v {rate}k -bufsize {rate}k
 """}
     return ret
 
