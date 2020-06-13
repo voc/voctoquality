@@ -5,15 +5,22 @@ import json
 import math
 from os import path
 
+
 def ffprobe(path):
+    cmd = f"""
+ffprobe -hide_banner -show_format -show_streams
+    -loglevel quiet -print_format json
+    {path}
+"""
     try:
-        output = subprocess.check_output(["ffprobe", "-hide_banner", "-show_format", "-show_streams", "-loglevel", "quiet", "-print_format", "json", path])
+        output = subprocess.check_output(shlex.split(cmd))
         result = json.loads(output.decode("utf-8"))
     except (subprocess.CalledProcessError,):
         print("Error: failed to probe %s" % path)
         return None
 
     return result
+
 
 def probe_rate(path):
     result = ffprobe(path)
@@ -23,34 +30,40 @@ def probe_rate(path):
     bitrate = int(result["format"]["bit_rate"]) / 1000
     return bitrate
 
+
 class EncodeFailed(Exception):
     pass
+
 
 class DecodeFailed(Exception):
     pass
 
+
 class ScoreFailed(Exception):
     pass
+
 
 def decode(src, dst):
     """Decodes media file at src and stores it at dst"""
     cmd = f"""
 ffmpeg -y -hide_banner -nostats -v warning
--i {src}
--c:v rawvideo -an
-{dst}
+    -i {src}
+    -c:v rawvideo -an
+    {dst}
 """
     try:
         subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as err:
         raise DecodeFailed(f"Failed to decode '{src}' - {err}")
 
+
 def calc_score(reference, coded, scale=None):
     """Computes vmaf scores for encoded video content"""
     scorepath = f"{coded}.json"
-    scale_filter = "scale=w=0:h=0"
-    if scale is not None:
-        scale_filter = f"scale={scale}:flags=bicubic"
+
+    # scale_filter = "scale=w=0:h=0"
+    # if scale is not None:
+    #     scale_filter = f"scale={scale}:flags=bicubic"
 
     rate = f"""
 ffmpeg -y -hide_banner -v warning
@@ -68,6 +81,7 @@ ffmpeg -y -hide_banner -v warning
 
         return [frame["metrics"]["vmaf"] + 1 for frame in data["frames"]]
 
+
 def transcode(ref, desc, opts, scale, tmpdir):
     """
     Transcodes reference to a specific format and computes the vmaf score
@@ -76,7 +90,8 @@ def transcode(ref, desc, opts, scale, tmpdir):
     | Arguments:
     | ref: Path to raw YUV reference-file
     | desc: format descriptor
-    | opts: ffmpeg option string, must contain '-i $ref' as reference input placeholder
+    | opts: ffmpeg option string, must contain '-i $ref' as reference input
+    |   placeholder
     | tmpdir: directory to store temporary files in
 
     """
@@ -98,7 +113,6 @@ ffmpeg -y -hide_banner -v warning -stats -progress {progresspath}
         raise EncodeFailed(f"Failed at format {desc} - {err}")
 
     # read final speed from progress
-    speed = 0
     with open(progresspath, "r") as f:
         progress = f.read().split("progress=continue")[-1]
         for line in progress.split("\n"):
@@ -132,10 +146,12 @@ ffmpeg -y -hide_banner -v warning -stats -progress {progresspath}
 
     return result
 
+
 def valid_reference(ref, tmpdir):
     """
-    Tests the scoring of a reference file. A copy encode should yield a score of close to 100.
-    Otherwise there are problems with the reference such as muxing errors.
+    Tests the scoring of a reference file. A copy encode should yield a score
+    of close to 100. Otherwise there are problems with the reference
+    such as muxing errors.
 
     Returns: True if reference is ok
     """
@@ -143,17 +159,21 @@ def valid_reference(ref, tmpdir):
     try:
         decode(ref, rawref)
     except DecodeFailed as err:
-        print("Reference decode failed: {err}")
+        print(f"Reference decode failed: {err}")
         return False
 
     try:
         sanity_result = transcode(rawref, "sanity", "-i $ref -c:v copy", None, tmpdir)
+
     except (EncodeFailed, ScoreFailed) as err:
-        print("Sanity encode failed: {err}")
+        print(f"Sanity encode failed: {err}")
         return False
 
-    if sanity_result["score_min"] < 95 or sanity_result["score_harm_mean"] < 98:
-        print(f"Sanity score for reference file '{ref}' not close to 100. Please fix your reference!")
+    if (sanity_result["score_min"] < 95 or sanity_result["score_harm_mean"] < 98):
+
+        print(f"Sanity score for reference file '{ref}' not close to 100. \
+            Please fix your reference!")
+
         return False
 
     return True

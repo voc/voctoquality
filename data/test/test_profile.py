@@ -1,10 +1,10 @@
 import unittest
 from libquality.profiles.simple import SimpleProfile
 import shutil
-import time
-from os import path, stat
+from os import path
 
 basedir = path.dirname(path.realpath(__file__))
+
 
 class TestSimpleProfile(unittest.TestCase):
     tmpdir = path.join(basedir, "tmp/profile")
@@ -24,7 +24,9 @@ class TestSimpleProfile(unittest.TestCase):
             del expected["speed"]
 
             for key in expected:
-                msg = f"{key} for {expected['codec']} changed: expected {expected[key]}, {got[key]}"
+                msg = f"{key} for {expected['codec']} changed: \
+                    expected {expected[key]}, got {got[key]}"
+
                 if type(expected[key] == float):
                     self.assertAlmostEqual(got[key], expected[key], delta=1, msg=msg)
                 else:

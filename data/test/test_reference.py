@@ -6,24 +6,28 @@ from os import path, stat
 
 basedir = path.dirname(path.realpath(__file__))
 
+
 class TestEnsure(unittest.TestCase):
     refdir = path.join(basedir, "tmp/references")
 
     def test_failedPrepare(self):
         sourcefile = path.join(basedir, "fixtures/invalid_url.json")
         with self.assertRaises(reference.ReferencePrepareFailed):
-            references = reference.ensure_references(sourcefile, {"refdir": self.refdir})
+            reference.ensure_references(sourcefile, {"refdir": self.refdir})
 
     def test_failedHash(self):
         sourcefile = path.join(basedir, "fixtures/invalid_hash.json")
         with self.assertRaises(reference.InvalidSourceHash):
-            references = reference.ensure_references(sourcefile, {"refdir": self.refdir})
+            reference.ensure_references(sourcefile, {"refdir": self.refdir})
 
     def test_downloadsSources(self):
         now = time.time()
         sourcefile = path.join(basedir, "fixtures/valid_sources.json")
         references = reference.ensure_references(sourcefile, {"refdir": self.refdir})
-        self.assertEqual(references, [path.join(self.refdir, "fnord.nut"), path.join(self.refdir, "bahnmining.nut")])
+        self.assertEqual(references, [
+            path.join(self.refdir, "fnord.nut"),
+            path.join(self.refdir, "bahnmining.nut")
+        ])
 
         for ref in references:
             # files should be under refdir

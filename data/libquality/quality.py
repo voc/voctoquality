@@ -1,7 +1,7 @@
 import json
 import glob
 from os import path, makedirs
-from libquality import ffmpeg
+
 
 def compare(references, profiles, tag, env):
     for profile in profiles:
@@ -20,6 +20,7 @@ def compare(references, profiles, tag, env):
                 # dump after every result to preserve work
                 with open(scorefile, "w") as f:
                     json.dump(scores, f, indent="  ")
+
 
 def plot(profiles, env):
     import pandas as pd

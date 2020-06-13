@@ -1,24 +1,18 @@
 import libquality.ffmpeg as ffmpeg
 from os import path, makedirs
+
+
 class InvalidEncodingFormat(Exception):
     pass
 
+
 class Profile:
-    """Comparison Profile, contains encoding formats and plots for comparison"""
+    """
+    Comparison Profile, contains encoding formats and plots for comparison
+    """
     name = None
     scale = None
     dimensions = []
-
-    def __init__(self):
-        """
-        Creates a new comparison profile with encoding formats and plotting formats
-
-        | Arguments:
-        | formats: dict with encoding formats
-        | plots: list of plotting functions
-        """
-        # self.aggregations = ["harm_mean", "10th_pct", "min"]
-        # self.aggregationLabels = ["Harmonic Mean", "10th Percentile", "Minimum"]
 
     # Override
     def formats(self):
@@ -41,11 +35,11 @@ class Profile:
             # check if all custom dimensions are present
             for dimension in self.dimensions:
                 if dimension not in fmt:
-                    raise InvalidEncodingFormat(f"Value for {dimension} not present in format {fmt}")
+                    raise InvalidEncodingFormat(f"Value for '{dimension}' not in format {fmt}")
 
             # check if encoding opts are present
             if "opts" not in fmt:
-                raise InvalidEncodingFormat(f"Encoding options not present in format {fmt}")
+                raise InvalidEncodingFormat(f"Encoding 'opts' not in format {fmt}")
 
             result.append(fmt)
 
@@ -99,4 +93,5 @@ class Profile:
                 print(err)
 
             count += 1
-            print(f"{count}/{len(formats)} formats complete ({(count/len(formats)*100):0.2f}%)")
+            percentage = count / len(formats) * 100
+            print(f"{count}/{len(formats)} formats complete ({percentage:0.2f}%)")

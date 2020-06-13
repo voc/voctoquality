@@ -3,11 +3,14 @@ import subprocess
 import shlex
 from os import path, rename, makedirs, stat
 
+
 class ReferencePrepareFailed(Exception):
     pass
 
+
 class InvalidSourceHash(Exception):
     pass
+
 
 def hash_file(path):
     import hashlib
@@ -20,13 +23,16 @@ def hash_file(path):
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
 
+
 def check_reference(source, ref):
     digest = hash_file(ref)
     if "hash" in source:
         if digest != source["hash"]:
-            raise InvalidSourceHash(f"Hash for reference {source['name']} is {digest}, expected {source['hash']}")
+            raise InvalidSourceHash(f"Hash for reference {source['name']} is {digest}, \
+                expected {source['hash']}")
     else:
         print(f"Reference {source['name']} md5 is {digest} ")
+
 
 def prepare_reference(src, dst, skip="", duration=""):
     if skip:
@@ -45,6 +51,7 @@ ffmpeg -y -hide_banner -v error {skip}
         subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as err:
         raise ReferencePrepareFailed(f"Failed to prepare '{src}' - {err}")
+
 
 def ensure_references(sourcefile, env):
     """
@@ -86,7 +93,3 @@ def ensure_references(sourcefile, env):
         references.append(ref)
 
     return references
-
-
-
-
