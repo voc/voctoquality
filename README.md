@@ -18,6 +18,11 @@ While the VMAF-metric is very good it's also not a replacement for the human eye
   - **Aggregation matters**: an arithmetic mean of all per-frame scores might be too optimistic in the presence of low-score outliers. For this reason different aggregate scoring methods should be used to get an idea of the range of values.
   - **Machine Learning**: The VMAF metric is actually an aggregation of multiple common video quality metrics such as PSNR and SSIM using a support vector machine (SVM). As such the absolute scores might not always be constrained to the range [0, 100] and comparing a reference video with itself might not yield a perfect score of 100.
 
+## Difference to other vmaf-containers
+This repository is intended for semi-automated exploration and testing of different encoding settings. If you just want a minimal container that can provide you a VMAF-score you are probably better off with one of the following projects:
+  - https://github.com/leandromoreira/docker-ffmpeg-vmaf
+  - https://github.com/sitkevij/vmaf
+
 ## How to use this
 Start off by cloning this repository to your machine
 ```bash
