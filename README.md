@@ -1,6 +1,6 @@
 # FFmpeg video setting comparison framework
-![build and test](https://github.com/voc/vmaf-docker/workflows/build%20and%20test/badge.svg)
-[![codecov](https://codecov.io/gh/voc/vmaf-docker/branch/master/graph/badge.svg)](https://codecov.io/gh/voc/vmaf-docker)
+![build and test](https://github.com/voc/voctoquality/workflows/build%20and%20test/badge.svg)
+[![codecov](https://codecov.io/gh/voc/voctoquality/branch/master/graph/badge.svg)](https://codecov.io/gh/voc/voctoquality)
 
 Python framework for comparing video encoding quality for different ffmpeg settings. Automates the whole process of preparing reference files, encoding, scoring, and plotting.
 
@@ -28,8 +28,8 @@ This repository is intended for semi-automated exploration and testing of differ
 ## How to use this
 Start off by cloning this repository to your machine
 ```bash
-git clone https://github.com/voc/vmaf-docker.git
-cd vmaf-docker
+git clone https://github.com/voc/voctoquality.git
+cd voctoquality
 ```
 
 ### Preparing the environment
@@ -43,13 +43,13 @@ First we need to setup our standardized test environment inside docker
 
 **Or build the container yourself**
 ```bash
-docker build --tag vmaf .
+docker build --tag voctoquality .
 docker run \
   --rm \
   --privileged \
   -v /dev/dri:/dev/dri \
   -v `pwd`:/root \
-  -it vmaf /bin/bash
+  -it voctoquality /bin/bash
 ```
 
 In our container environment we now have all required libraries present to run reproducible quality comparisons.
