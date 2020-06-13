@@ -1,9 +1,9 @@
-import argparse
-import os
-import math
-import json
-import shlex, subprocess
+import subprocess
+import shlex
 import re
+import json
+import math
+from os import path
 
 def ffprobe(path):
     try:
@@ -35,7 +35,7 @@ class ScoreFailed(Exception):
 def decode(src, dst):
     """Decodes media file at src and stores it at dst"""
     cmd = f"""
-ffmpeg -y -hide_banner -v warning
+ffmpeg -y -hide_banner -nostats -v warning
 -i {src}
 -c:v rawvideo -an
 {dst}
@@ -68,34 +68,34 @@ ffmpeg -y -hide_banner -v warning
 
         return [frame["metrics"]["vmaf"] + 1 for frame in data["frames"]]
 
-def transcode_format(ref, name, fmt, scale, tmpdir):
+def transcode(ref, desc, opts, scale, tmpdir):
     """
     Transcodes reference to a specific format and computes the vmaf score
     of the resulting file.
 
     | Arguments:
     | ref: Path to raw YUV reference-file
-    | name: format name
-    | fmt: dict with format description
+    | desc: format descriptor
+    | opts: ffmpeg option string, must contain '-i $ref' as reference input placeholder
     | tmpdir: directory to store temporary files in
 
     """
     result = {}
 
     # encode input
-    print(f"Transcoding format: {name}")
-    codedpath = os.path.join(tmpdir, f"{name}.nut")
-    progresspath = os.path.join(tmpdir, "progress")
+    print(f"Transcoding descriptor: {desc}")
+    codedpath = path.join(tmpdir, f"{desc}.nut")
+    progresspath = path.join(tmpdir, "progress")
     cmd = f"""
 ffmpeg -y -hide_banner -v warning -stats -progress {progresspath}
-{fmt["opts"].replace("$ref", ref)}
+{opts.replace("$ref", ref)}
 -an
 {codedpath}
 """
     try:
         subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as err:
-        raise EncodeFailed(f"Failed at format {name} - {err}")
+        raise EncodeFailed(f"Failed at format {desc} - {err}")
 
     # read final speed from progress
     speed = 0
@@ -112,7 +112,7 @@ ffmpeg -y -hide_banner -v warning -stats -progress {progresspath}
     # calculate vmaf score
     scores = calc_score(ref, codedpath, scale)
     if scores is None:
-        raise ScoreFailed(f"Failed to compute score for {name}")
+        raise ScoreFailed(f"Failed to compute score for {desc}")
 
     # Calculate different aggregates
     score_mean = sum(scores) / len(scores)
@@ -132,82 +132,28 @@ ffmpeg -y -hide_banner -v warning -stats -progress {progresspath}
 
     return result
 
-def transcode(ref, formats, scale=None, tmpdir="tmp"):
+def valid_reference(ref, tmpdir):
     """
-    Transcodes a reference file to a list of formats and
-    computes the vmaf score for each one.
+    Tests the scoring of a reference file. A copy encode should yield a score of close to 100.
+    Otherwise there are problems with the reference such as muxing errors.
 
-    | Arguments:
-    | ref: reference file
-    | formats: dict of format name -> format description
-    | scale: scale content before determining score (Scale of transcoded content and reference must match or the score will be wrong)
-    | tmpdir: directory to store transcoded files in
+    Returns: True if reference is ok
     """
-    os.makedirs("tmp", exist_ok=True)
-    results = {}
-
-   # Decode reference (Must be YUV or the VMAF scores will be wrong...)
-    rawref = os.path.join(tmpdir, "ref.nut")
+    rawref = path.join(tmpdir, "ref.nut")
     try:
         decode(ref, rawref)
     except DecodeFailed as err:
-        print("Failed to decode reference file: {err}")
-        return results
+        print("Reference decode failed: {err}")
+        return False
 
-    # Test reference file, a copy transcode should yield a score of ~= 100
-    fmt = {"opts": "-i $ref -c:v copy"}
     try:
-        sanity_result = transcode_format(rawref, "sanity", fmt, scale, tmpdir)
+        sanity_result = transcode(rawref, "sanity", "-i $ref -c:v copy", None, tmpdir)
     except (EncodeFailed, ScoreFailed) as err:
         print("Sanity encode failed: {err}")
-        return results
+        return False
 
     if sanity_result["score_min"] < 95 or sanity_result["score_harm_mean"] < 98:
         print(f"Sanity score for reference file '{ref}' not close to 100. Please fix your reference!")
-        return results
+        return False
 
-    # Transcoding to user formats
-    for name in formats:
-        try:
-            fmt = formats[name]
-            results[name] = transcode_format(rawref, name, fmt, scale, tmpdir)
-        except (EncodeFailed, ScoreFailed) as err:
-            print(err)
-
-    return results
-
-def init(formats, plot):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--task", choices=["all", "transcode", "plot"],
-        help="do only some of the tasks", default="all")
-    parser.add_argument("references", nargs="+", help="reference videos")
-
-    args = parser.parse_args()
-    print("Reference videos:", args.references)
-
-    # transcode creates subformats and calculates scores, speed and actual rate
-    if args.task == "all" or args.task == "transcode":
-        scores = {}
-        for reference in args.references:
-            name = os.path.basename(reference)
-            print(f"Processing reference: {reference}")
-            scores[name] = transcode(reference, formats, scale=None)
-        with open("tmp/scores.json", "w") as f:
-            json.dump(scores, f)
-
-    # do plots
-    scores = None
-    if args.task == "all" or args.task == "plot":
-        with open("tmp/scores.json", "r") as f:
-            scores = json.load(f)
-
-        for reference in args.references:
-            name = os.path.basename(reference)
-            if name not in scores:
-                print(f"Score for reference '{reference}' not found")
-                continue
-            score = scores[name]
-            plot(name, formats, score)
-
-aggregations = ["harm_mean", "10th_pct", "min"]
-aggregationLabels = ["Harmonic Mean", "10th Percentile", "Minimum"]
+    return True
