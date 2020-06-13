@@ -18,11 +18,11 @@ RUN sed -i "s#debian bullseye main#debian bullseye main contrib non-free#g" /etc
         pkg-config \
         yasm \
         libva-dev libva2 \
+        libssl-dev \
         libx264-dev libx264-155 \
         libx265-dev libx265-179 \
         libvpx-dev libvpx6 \
         i965-va-driver-shaders \
-        intel-media-va-driver-non-free \
         mesa-va-drivers \
         wget \
         && \
@@ -34,7 +34,6 @@ RUN git clone --branch v1.3.15 --depth 1 https://github.com/Netflix/vmaf.git /vm
 RUN git clone --branch n4.1.4 --depth 1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg
 
 # build vmaf + ffmpeg
-RUN apt-get update && apt-get install -y libssl-dev
 RUN cd /vmaf && make -j $(nproc --all) && make install
 RUN cd /ffmpeg && \
     ./configure --enable-version3 --enable-gpl --enable-nonfree --enable-small \
