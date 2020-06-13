@@ -1,8 +1,10 @@
-# FFmpeg codec comparison docker
-Contains ffmpeg with libvmaf, vaapi, libvpx, libx264 and libx265 support.
+# FFmpeg video setting comparison framework
+![build and test](https://github.com/voc/vmaf-docker/workflows/build%20and%20test/badge.svg)
+[![codecov](https://codecov.io/gh/voc/vmaf-docker/branch/master/graph/badge.svg)](https://codecov.io/gh/voc/vmaf-docker)
 
-Additionally this repository includes a python library which automates
-the whole process of preparing reference files, encoding, scoring, and plotting.
+Python framework for comparing video encoding quality for different ffmpeg settings. Automates the whole process of preparing reference files, encoding, scoring, and plotting.
+
+Comparisons are run in docker with ffmpeg and libvmaf, vaapi, libvpx, libx264 and libx265 support.
 
 ## Why is this useful?
 When trying to encode video content you currently have a gigantic ecosystem of different software and hardware-encoders available at your disposal and each of them comes with a large number of confusing knobs to tweak. Depending on your goals the default settings might do a fine job, but to understand how a specific setting influences encoding quality and speed it can be very useful to be able to objectively compare the results.

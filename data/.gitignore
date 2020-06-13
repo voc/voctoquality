@@ -1,4 +1,6 @@
+.coverage
+htmlcov/
 tmp/
-test/tmp/
 references
 scores
+coverage.xml

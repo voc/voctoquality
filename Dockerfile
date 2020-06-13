@@ -12,6 +12,8 @@ RUN sed -i "s#debian bullseye main#debian bullseye main contrib non-free#g" /etc
         git \
         ninja-build \
         python3 \
+        python3-coverage \
+        python3-flake8 \
         python3-matplotlib \
         python3-pandas \
         ca-certificates \
