@@ -1,0 +1,43 @@
+# Build docker image on every commit and run tests in it
+# Push new release image after version tag push
+
+name: build and test
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag vmaf
+
+      - name: Run tests
+        run: docker run --rm -v $(pwd):/root vmaf make test
+
+      # Push for tagged versions on master
+
+      #- name: Docker login
+      #  run: |
+      #    docker login docker.pkg.github.com -u voc -p ${{ secrets.GITHUB_TOKEN }}
+      #  if: success()
+
+      #- name: Docker Build - non master
+      #  run: make build build_version="$nextversion_sha"
+      #  if: success() && github.ref != 'refs/heads/master'
+
+      #- name: Docker Build - master
+      #  run: make build build_version="$nextversion"
+      #  if: success() && github.ref == 'refs/heads/master'
+
+      #- name: Push docker image latest
+      #  run: make latest build_version="$nextversion"
+      #  if: success() && github.ref == 'refs/heads/master'
