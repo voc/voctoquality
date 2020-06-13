@@ -33,4 +33,4 @@ def plot(profiles, env):
 
     df = pd.DataFrame(scores)
     for profile in profiles:
-        profile.plot(df.loc[lambda df: df["profile"] == profile.name, :])
+        profile.plot(df.loc[lambda df: df["profile"] == profile.name, :].copy())

@@ -19,7 +19,7 @@ def main():
     parser.add_argument("-t", "--task", choices=["all", "transcode", "plot"],
         help="do only some of the tasks", default="all")
     parser.add_argument("--profile", nargs="*", choices=profilenames,
-        default=profilenames, help="only to testing for some comparison profile/s")
+        default=["voc-streaming"], help="only to testing for some comparison profile/s")
     parser.add_argument("-s", "--source", default=path.join(basedir, "sources.json"),
         help="source description file")
     parser.add_argument("tag", help="tag to identify your current testing platform")
@@ -28,9 +28,8 @@ def main():
 
     print("Comparison Profiles:", args.profile)
 
-    tmpdir = "tmp/"
     profs = []
-    for name in profilenames:
+    for name in args.profile:
         profs.append(next(p for p in profiles if p.name == name))
 
     # transcode creates subformats and calculates scores, speed and actual rate

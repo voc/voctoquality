@@ -3,24 +3,11 @@ import subprocess
 import shlex
 from os import path, rename, makedirs, stat
 
-
-class SourceDownloadFailed(Exception):
-    pass
-
 class ReferencePrepareFailed(Exception):
     pass
 
 class InvalidSourceHash(Exception):
     pass
-
-
-def download_source(url, target):
-    cmd = f"wget --quiet {url} -O {dl_target}.tmp"
-    try:
-        subprocess.check_call(shlex.split(cmd))
-        os.rename(f"{dl_target}.tmp", dl_target)
-    except subprocess.CalledProcessError as err:
-        raise SourceDownloadFailed(err)
 
 def hash_file(path):
     import hashlib
@@ -37,7 +24,7 @@ def check_reference(source, ref):
     digest = hash_file(ref)
     if "hash" in source:
         if digest != source["hash"]:
-            raise InvalidSourceHash(f"Hash validation for source {source['name']} failed")
+            raise InvalidSourceHash(f"Hash for reference {source['name']} is {digest}, expected {source['hash']}")
     else:
         print(f"Reference {source['name']} md5 is {digest} ")
 
@@ -91,7 +78,7 @@ def ensure_references(sourcefile, env):
             redownload = True
 
         if redownload:
-            print(f"Downloading reference: {source}")
+            print(f"Downloading reference: {source['name']}")
             prepare_reference(source["url"], tmpref, skip, duration)
             check_reference(source, tmpref)
             rename(tmpref, ref)

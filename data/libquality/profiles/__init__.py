@@ -1,3 +1,4 @@
-from libquality.profiles.voc_streaming import profile as voc_streaming
+from libquality.profiles.voc_streaming import VocStreamingProfile
+from libquality.profiles.simple import SimpleProfile
 
-profiles = [voc_streaming]
+profiles = [VocStreamingProfile(), SimpleProfile()]
