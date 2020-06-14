@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Build the Docker image
         run: DOCKER_BUILDKIT=1 docker build . --progress=plain --file Dockerfile --tag build
@@ -31,15 +33,15 @@ jobs:
           file: data/coverage.xml
 
       - name: Set version from tag
+        if: success() && github.ref == 'refs/heads/master'
         run: echo "::set-env name=version::$(git tag --points-at ${GITHUB_SHA} | tail -n 1)"
-        if: success() && github.ref == "refs/heads/master"
 
       # Push package for tagged versions on master
       - name: Release docker
+        if: success() && github.ref == 'refs/heads/master' && env.version != ''
         run: |
           docker login docker.pkg.github.com -u voc -p ${{ secrets.GITHUB_TOKEN }}
           docker tag build ${DOCKER_REPO}:${version}
           docker tag build ${DOCKER_REPO}:latest
           docker push ${DOCKER_REPO}:${version}
           docker push ${DOCKER_REPO}:latest
-        if: success() && github.ref == "refs/heads/master" && env.version != ""
