@@ -13,34 +13,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO: docker.pkg.github.com/voc/voctoquality/voctoquality
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build the Docker image
-        run: DOCKER_BUILDKIT=1 docker build . --progress=plain --file Dockerfile --tag vmaf
+        run: DOCKER_BUILDKIT=1 docker build . --progress=plain --file Dockerfile --tag build
 
       - name: Run tests
-        run: docker run --rm -v $(pwd):/root vmaf make test coverage
+        run: docker run --rm -v $(pwd):/root build make test coverage
 
       - name: Codecov
         uses: codecov/codecov-action@v1.0.7
         with:
           file: data/coverage.xml
 
-      # Push for tagged versions on master
-      #- name: Docker login
-      #  run: |
-      #    docker login docker.pkg.github.com -u voc -p ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version from tag
+        run: echo "::set-env name=version::$(git tag --points-at ${GITHUB_SHA} | tail -n 1)"
+        if: success() && github.ref == "refs/heads/master"
 
-      #- name: Docker Build - non master
-      #  run: make build build_version="$nextversion_sha"
-      #  if: success() && github.ref != 'refs/heads/master'
-
-      #- name: Docker Build - master
-      #  run: make build build_version="$nextversion"
-      #  if: success() && github.ref == 'refs/heads/master'
-
-      #- name: Push docker image latest
-      #  run: make latest build_version="$nextversion"
-      #  if: success() && github.ref == 'refs/heads/master'
+      # Push package for tagged versions on master
+      - name: Release docker
+        run: |
+          docker login docker.pkg.github.com -u voc -p ${{ secrets.GITHUB_TOKEN }}
+          docker tag build ${DOCKER_REPO}:${version}
+          docker tag build ${DOCKER_REPO}:latest
+          docker push ${DOCKER_REPO}:${version}
+          docker push ${DOCKER_REPO}:latest
+        if: success() && github.ref == "refs/heads/master" && env.version != ""
