@@ -1,6 +1,7 @@
-from libquality.profile import Profile
+from libquality.profile import Profile as Base
 
-class SimpleProfile(Profile):
+
+class Profile(Base):
     name = "simple"
     dimensions = ["codec"]
 
@@ -13,6 +14,3 @@ class SimpleProfile(Profile):
 
     def plot(self, df):
         df.plot()
-
-
-

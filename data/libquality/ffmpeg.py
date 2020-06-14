@@ -16,7 +16,6 @@ ffprobe -hide_banner -show_format -show_streams
         output = subprocess.check_output(shlex.split(cmd))
         result = json.loads(output.decode("utf-8"))
     except (subprocess.CalledProcessError,):
-        print("Error: failed to probe %s" % path)
         return None
 
     return result

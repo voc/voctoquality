@@ -1,5 +1,5 @@
 import libquality.ffmpeg as ffmpeg
-from os import path, makedirs
+from os import path, makedirs, listdir, sep
 
 
 class InvalidEncodingFormat(Exception):
@@ -95,3 +95,19 @@ class Profile:
             count += 1
             percentage = count / len(formats) * 100
             print(f"{count}/{len(formats)} formats complete ({percentage:0.2f}%)")
+
+
+def load(parent):
+    """load profiles from directory"""
+    res = {}
+
+    # check subfolders
+    lst = listdir(parent)
+    lst = filter(lambda f: path.isfile(path.join(parent, f)) and path.splitext(f)[1] == ".py", lst)
+
+    # load the modules
+    for file in lst:
+        name = path.splitext(file)[0]
+        res[name] = __import__(parent + "." + name, fromlist=["*"])
+
+    return res

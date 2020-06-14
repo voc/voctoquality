@@ -1,6 +1,7 @@
-from libquality.profile import Profile
+from libquality.profile import Profile as Base
 
-class VocStreamingProfile(Profile):
+
+class Profile(Base):
     name = "voc-streaming"
     dimensions = ["encoder", "codec", "target_rate"]
 
@@ -58,7 +59,6 @@ class VocStreamingProfile(Profile):
     def plot_score_per_rate(self, df):
         import pandas as pd
         import matplotlib.pyplot as plt
-        import numpy as np
 
         # label codecs
         df.loc[:, "oldenc"] = df["encoder"]
@@ -67,16 +67,13 @@ class VocStreamingProfile(Profile):
 
         # Group scores by target rate
         group = df.groupby(["target_rate", "encoder"])
-        # agg = group.aggregate({"score_mean": np.mean, "rate": np.mean}).unstack()
-        # scores = agg["score_mean"]
-        # rates = agg["rate"]
 
         scores = group[["score_mean"]].mean().unstack().droplevel(0, axis=1)
         rates = group[["rate"]].mean().unstack().droplevel(0, axis=1)
 
         # But plot with real rate
         legend = []
-        plt.rcParams["figure.figsize"] = (8,6)
+        plt.rcParams["figure.figsize"] = (8, 6)
         for encoder in scores:
             data = pd.DataFrame({encoder: scores[encoder], "rate": rates[encoder]})
             plt.plot(data["rate"]/1000, data[encoder], "-+")
@@ -94,9 +91,7 @@ class VocStreamingProfile(Profile):
         plt.close()
 
     def plot_score_per_ref(self, df):
-        import pandas as pd
         import matplotlib.pyplot as plt
-        import numpy as np
 
         # label codecs
         df.loc[:, "oldenc"] = df["encoder"]
@@ -107,8 +102,8 @@ class VocStreamingProfile(Profile):
         scores = group[["score_mean"]].mean().unstack("encoder").droplevel(0, axis=1)
         errors = group[["score_mean"]].mad().unstack("encoder").droplevel(0, axis=1)
 
-        plt.rcParams["figure.figsize"] = (8,6)
-        scores.plot.bar(ylim=(0,100), yerr=errors, capsize=2)
+        plt.rcParams["figure.figsize"] = (8, 6)
+        scores.plot.bar(ylim=(0, 100), yerr=errors, capsize=2)
         plt.title("Codec comparison per reference file")
         plt.ylabel("Mean VMAF score + MAD")
         plt.subplots_adjust(bottom=0.2)
@@ -119,10 +114,7 @@ class VocStreamingProfile(Profile):
     def plot_speeds(self, df):
         import pandas as pd
         import matplotlib.pyplot as plt
-        import numpy as np
 
-        # only show speed for vaapi codecs
-        # df = df.loc[lambda df: df["encoder"] == "vaapi", :].copy()
         df.loc[:, "encoder"] = df["tag"] + "-" + df["encoder"] + "-" + df["codec"]
 
         # Group scores by target rate
@@ -133,7 +125,7 @@ class VocStreamingProfile(Profile):
 
         # But plot with real rate
         legend = []
-        plt.rcParams["figure.figsize"] = (8,6)
+        plt.rcParams["figure.figsize"] = (8, 6)
         for encoder in speeds:
             data = pd.DataFrame({encoder: speeds[encoder], "rate": rates[encoder]})
             plt.errorbar(data["rate"]/1000, data[encoder], yerr=errors[encoder], capsize=2)
@@ -149,9 +141,3 @@ class VocStreamingProfile(Profile):
         plt.grid(True)
         plt.savefig(f"vaapi_speeds.pdf")
         plt.close()
-
-
-# formats = EncodingFormats(dimensions, generate_formats())
-# profile = Profile("voc-streaming", formats, )
-
-

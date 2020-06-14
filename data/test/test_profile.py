@@ -1,16 +1,65 @@
 import unittest
-from libquality.profiles.simple import SimpleProfile
 import shutil
+import pandas as pd
 from os import path
+import libquality.profile as profile
 
 basedir = path.dirname(path.realpath(__file__))
+profiles = profile.load("profiles")
 
 
-class TestSimpleProfile(unittest.TestCase):
+def mockScore(i):
+    return {
+        "speed": i,
+        "rate": i,
+        "score_mean": i,
+        "score_harm_mean": i,
+        "score_10th_pct": i,
+        "score_min": i
+    }
+
+
+class TestProfiles(unittest.TestCase):
+    """Runs basic checks for all profiles"""
+
+    def test_profileNames(self):
+        """Checks whether profiles provide a name"""
+        for module in profiles:
+            if not hasattr(profiles[module], "Profile"):
+                continue
+
+            p = profiles[module].Profile()
+            self.assertEqual(type(p.name), str, "profile name should be string")
+            self.assertTrue(len(p.name), f"profile in {module} should set name")
+
+    def test_profileFormats(self):
+        """Checks whether profiles provide encoding formats"""
+        for module in profiles:
+            if not hasattr(profiles[module], "Profile"):
+                continue
+
+            p = profiles[module].Profile()
+            formats = p.get_formats()
+            self.assertTrue(len(formats) > 0, f"profile in {module} should provide encoding formats")
+
+    def test_profilePlots(self):
+        """Mocks scores and calls plot functions"""
+        for module in profiles:
+            if not hasattr(profiles[module], "Profile"):
+                continue
+
+            p = profiles[module].Profile()
+            formats = p.get_formats()
+            scores = list(p.annotate_result(mockScore(i), formats[0], "ref", "tag") for i in range(5))
+            p.plot(pd.DataFrame(scores))
+
+
+class TestProcess(unittest.TestCase):
+    """Runs simple profile and checks scores"""
     tmpdir = path.join(basedir, "tmp/profile")
 
     def setUp(self):
-        self.profile = SimpleProfile()
+        self.profile = profiles["simple"].Profile()
 
     def test_process(self):
         reference = path.join(basedir, "fixtures/reference.nut")

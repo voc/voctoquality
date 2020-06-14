@@ -1,8 +1,8 @@
 import unittest
-import libquality.reference as reference
 import shutil
 import time
 from os import path, stat
+import libquality.reference as reference
 
 basedir = path.dirname(path.realpath(__file__))
 

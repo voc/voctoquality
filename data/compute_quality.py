@@ -4,9 +4,16 @@ import os.path as path
 import libquality.ffmpeg as ffmpeg
 import libquality.quality as quality
 import libquality.reference as reference
-from libquality.profiles import profiles
+import libquality.profile as profile
+
 
 def main():
+    mods = profile.load("profiles")
+    profiles = []
+    for a in mods:
+        if hasattr(mods[a], "Profile"):
+            profiles.append(mods[a].Profile())
+
     profilenames = [profile.name for profile in profiles]
     basedir = path.dirname(path.realpath(__file__))
     env = {
@@ -16,13 +23,17 @@ def main():
     }
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--task", choices=["all", "transcode", "plot"],
+    parser.add_argument(
+        "-t", "--task", choices=["all", "transcode", "plot"],
         help="do only some of the tasks", default="all")
-    parser.add_argument("--profile", nargs="*", choices=profilenames,
+    parser.add_argument(
+        "-p", "--profile", nargs="*", choices=profilenames,
         default=["voc-streaming"], help="only to testing for some comparison profile/s")
-    parser.add_argument("-s", "--source", default=path.join(basedir, "sources.json"),
+    parser.add_argument(
+        "-s", "--source", default=path.join(basedir, "sources.json"),
         help="source description file")
-    parser.add_argument("tag", help="tag to identify your current testing platform")
+    parser.add_argument(
+        "tag", help="tag to identify your current testing platform")
 
     args = parser.parse_args()
 
@@ -43,7 +54,6 @@ def main():
         quality.compare(references, profs, args.tag, env)
 
     # do plots
-    scores = None
     if args.task == "all" or args.task == "plot":
         quality.plot(profs, env)
 
