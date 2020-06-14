@@ -32,6 +32,8 @@ def plot(profiles, env):
         with open(filename, "r") as f:
             scores += json.load(f)
 
+    makedirs(env["plotdir"], exist_ok=True)
+
     df = pd.DataFrame(scores)
     for profile in profiles:
-        profile.plot(df.loc[lambda df: df["profile"] == profile.name, :].copy())
+        profile.plot(df.loc[lambda df: df["profile"] == profile.name, :].copy(), env["plotdir"])

@@ -1,7 +1,7 @@
 import unittest
 import shutil
 import pandas as pd
-from os import path
+from os import path, makedirs
 import libquality.profile as profile
 
 basedir = path.dirname(path.realpath(__file__))
@@ -44,14 +44,18 @@ class TestProfiles(unittest.TestCase):
 
     def test_profilePlots(self):
         """Mocks scores and calls plot functions"""
+        plotdir = path.join(basedir, "tmp/plots")
+        makedirs(plotdir, exist_ok=True)
         for module in profiles:
             if not hasattr(profiles[module], "Profile"):
                 continue
 
             p = profiles[module].Profile()
-            formats = p.get_formats()
-            scores = list(p.annotate_result(mockScore(i), formats[0], "ref", "tag") for i in range(5))
-            p.plot(pd.DataFrame(scores))
+            fmt = p.get_formats()[0]
+            scores = list(p.annotate_result(mockScore(i), fmt, "ref", "tag") for i in range(5))
+            p.plot(pd.DataFrame(scores), plotdir)
+
+        shutil.rmtree(plotdir, ignore_errors=True)
 
 
 class TestProcess(unittest.TestCase):

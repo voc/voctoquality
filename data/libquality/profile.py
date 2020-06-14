@@ -1,5 +1,5 @@
 import libquality.ffmpeg as ffmpeg
-from os import path, makedirs, listdir, sep
+from os import path, makedirs, listdir
 
 
 class InvalidEncodingFormat(Exception):
@@ -19,7 +19,7 @@ class Profile:
         pass
 
     # Override
-    def plot(self, df):
+    def plot(self, df, plotdir):
         pass
 
     def get_dimensions(self):

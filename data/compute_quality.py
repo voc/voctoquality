@@ -19,7 +19,8 @@ def main():
     env = {
         "scoredir": path.join(basedir, "scores"),
         "refdir": path.join(basedir, "references"),
-        "tmpdir": path.join(basedir, "tmp")
+        "tmpdir": path.join(basedir, "tmp"),
+        "plotdir": path.join(basedir, "plots"),
     }
 
     parser = argparse.ArgumentParser()

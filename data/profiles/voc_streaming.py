@@ -1,4 +1,5 @@
 from libquality.profile import Profile as Base
+from os import path
 
 
 class Profile(Base):
@@ -51,12 +52,12 @@ class Profile(Base):
     -b:v {rate}k -maxrate:v {rate}k -bufsize {rate}k
 """}
 
-    def plot(self, df):
-        self.plot_score_per_rate(df.copy())
-        self.plot_score_per_ref(df.copy())
-        self.plot_speeds(df.copy())
+    def plot(self, df, plotdir):
+        self.plot_score_per_rate(df.copy(), plotdir)
+        self.plot_score_per_ref(df.copy(), plotdir)
+        self.plot_speeds(df.copy(), plotdir)
 
-    def plot_score_per_rate(self, df):
+    def plot_score_per_rate(self, df, plotdir):
         import pandas as pd
         import matplotlib.pyplot as plt
 
@@ -87,10 +88,10 @@ class Profile(Base):
         plt.ylabel("Mean VMAF score over all references")
         plt.title("Score over Bitrate for VAAPI vs. Software codecs")
         plt.grid(True)
-        plt.savefig(f"vaapi_rates.pdf")
+        plt.savefig(path.join(plotdir, "streaming_rates.pdf"))
         plt.close()
 
-    def plot_score_per_ref(self, df):
+    def plot_score_per_ref(self, df, plotdir):
         import matplotlib.pyplot as plt
 
         # label codecs
@@ -108,10 +109,10 @@ class Profile(Base):
         plt.ylabel("Mean VMAF score + MAD")
         plt.subplots_adjust(bottom=0.2)
         plt.grid(True)
-        plt.savefig(f"vaapi_streaming.pdf")
+        plt.savefig(path.join(plotdir, "streaming_refs.pdf"))
         plt.close()
 
-    def plot_speeds(self, df):
+    def plot_speeds(self, df, plotdir):
         import pandas as pd
         import matplotlib.pyplot as plt
 
@@ -139,5 +140,5 @@ class Profile(Base):
         plt.ylabel("Encoding Speed in multiples of realtime")
         plt.title("Speed over Bitrate for VAAPI vs. Software codecs")
         plt.grid(True)
-        plt.savefig(f"vaapi_speeds.pdf")
+        plt.savefig(path.join(plotdir, "streaming_speeds.pdf"))
         plt.close()

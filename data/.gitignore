@@ -1,6 +1,6 @@
 .coverage
-htmlcov/
 tmp/
-references
-scores
+plots/
+references/
+scores/
 coverage.xml

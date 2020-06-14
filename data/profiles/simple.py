@@ -12,5 +12,5 @@ class Profile(Base):
                 "opts": f"-i $ref -c:v {codec}"
             }
 
-    def plot(self, df):
+    def plot(self, df, plotdir):
         df.plot()
