@@ -1,5 +1,5 @@
 # FFmpeg video setting comparison framework
-![build and test](https://github.com/voc/voctoquality/workflows/build%20and%20test/badge.svg)
+[![build and test](https://github.com/voc/voctoquality/workflows/build%20and%20test/badge.svg)](https://github.com/voc/voctoquality/actions)
 [![codecov](https://codecov.io/gh/voc/voctoquality/branch/master/graph/badge.svg)](https://codecov.io/gh/voc/voctoquality)
 
 Python framework for comparing video encoding quality for different ffmpeg settings. Automates the whole process of preparing reference files, encoding, scoring, and plotting.
