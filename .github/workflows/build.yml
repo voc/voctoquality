@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-20.04"
     env:
       DOCKER_REPO: docker.pkg.github.com/voc/voctoquality/voctoquality
     steps:
