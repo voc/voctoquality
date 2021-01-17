@@ -21,8 +21,8 @@ RUN sed -i "s#debian bullseye main#debian bullseye main contrib non-free#g" /etc
         yasm \
         libva-dev libva2 \
         libssl-dev \
-        libx264-dev libx264-155 \
-        libx265-dev libx265-179 \
+        libx264-dev libx264-160 \
+        libx265-dev libx265-192 \
         libvpx-dev libvpx6 \
         i965-va-driver-shaders \
         mesa-va-drivers \
