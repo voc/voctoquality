@@ -24,6 +24,20 @@ class Profile(Base):
     -b:v {rate}k -maxrate:v {rate}k -bufsize {rate}k
 """}
 
+            for codec in ["h264", "hevc"]:
+                yield {
+                    "encoder": "nvenc",
+                    "codec": codec,
+                    "target_rate": rate,
+                    "opts": f"""
+    -i $ref
+    -c:v {codec}_nvenc
+    -keyint_min:v 75 -g:v 75
+    -no-scenecut:v 1
+    -pixel_format yuv420p
+    -b:v {rate}k -maxrate:v {rate}k -bufsize {rate}k
+"""}
+
             yield {
                 "encoder": "x264",
                 "codec": "h264",
