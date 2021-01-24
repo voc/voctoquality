@@ -60,14 +60,14 @@ def calc_score(reference, coded, scale=None):
     """Computes vmaf scores for encoded video content"""
     scorepath = f"{coded}.json"
 
-    # scale_filter = "scale=w=0:h=0"
-    # if scale is not None:
-    #     scale_filter = f"scale={scale}:flags=bicubic"
+    scale_filter = "scale=w=0:h=0"
+    if scale is not None:
+        scale_filter = f"scale={scale}:flags=bicubic"
 
     rate = f"""
 ffmpeg -y -hide_banner -v warning
     -i {coded} -i {reference}
-    -filter_complex "[0:v][1:v]libvmaf=log_fmt=json:log_path={scorepath}:n_subsample=3"
+    -filter_complex "[0:v] {scale_filter} [scaled];[scaled][1:v]libvmaf=log_fmt=json:log_path={scorepath}:n_subsample=3"
     -f null -
 """
     try:

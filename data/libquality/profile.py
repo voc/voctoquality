@@ -1,4 +1,5 @@
 import libquality.ffmpeg as ffmpeg
+from libquality.reference import process_reference
 from os import path, makedirs, listdir
 
 
@@ -12,6 +13,7 @@ class Profile:
     """
     name = None
     scale = None
+    preprocess = None
     dimensions = []
 
     # Override
@@ -75,10 +77,14 @@ class Profile:
         """
         count = 0
 
-        # decode reference
+        # process reference
         makedirs(tmpdir, exist_ok=True)
+        procref = path.join(tmpdir, "procref.nut")
+        process_reference(reference, procref, self.preprocess) 
+
+        # decode reference
         rawref = path.join(tmpdir, "ref.nut")
-        ffmpeg.decode(reference, rawref)
+        ffmpeg.decode(procref, rawref)
 
         formats = self.get_formats()
         for fmt in formats:

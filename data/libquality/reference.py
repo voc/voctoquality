@@ -11,7 +11,6 @@ class ReferencePrepareFailed(Exception):
 class InvalidSourceHash(Exception):
     pass
 
-
 def hash_file(path):
     import hashlib
     BLOCKSIZE = 1024 * 16
@@ -34,7 +33,7 @@ def check_reference(source, ref):
         print(f"Reference {source['name']} md5 is {digest} ")
 
 
-def prepare_reference(src, dst, skip="", duration=""):
+def prepare_reference(src, dst, skip="", duration="", scale="1920x1080"):
     if skip:
         skip = "-ss " + skip
     if duration:
@@ -44,9 +43,24 @@ def prepare_reference(src, dst, skip="", duration=""):
 ffmpeg -y -hide_banner -v error {skip}
     -i {src}
     -c:v ffvhuff -an {duration}
-    -r 25 -s 1920x1080 -sws_flags bicubic -pix_fmt yuv420p
+    -r 25 -s {scale} -sws_flags bicubic -pix_fmt yuv420p
     {dst}
 """
+    try:
+        subprocess.check_call(shlex.split(cmd))
+    except subprocess.CalledProcessError as err:
+        raise ReferencePrepareFailed(f"Failed to prepare '{src}' - {err}")
+
+
+def process_reference(src, dst, process=None):
+    if process is None:
+        # do copy or symlink?
+        return
+
+    cmd = f"""
+ffmpeg -y -hide_banner -v error
+    -i {src} {process} {dst}
+"""	
     try:
         subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as err:

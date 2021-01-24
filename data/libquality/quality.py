@@ -3,26 +3,25 @@ import glob
 from os import path, makedirs
 
 
-def compare(references, profiles, tag, env):
-    for profile in profiles:
-        # store scores per profile
-        scores = []
-        scorefile = path.join(env["scoredir"], f"{tag}_{profile.name}.json")
+def compare(references, profile, tag, env):
+    # store scores per profile
+    scores = []
+    scorefile = path.join(env["scoredir"], f"{tag}_{profile.name}.json")
 
-        makedirs(env["scoredir"], exist_ok=True)
+    makedirs(env["scoredir"], exist_ok=True)
 
-        print(f"Processing profile: {profile.name}")
-        for reference in references:
-            print(f"Processing reference: {reference}")
-            for result in profile.process(reference, tag, env["tmpdir"]):
-                scores.append(result)
+    print(f"Processing profile: {profile.name}")
+    for reference in references:
+        print(f"Processing reference: {reference}")
+        for result in profile.process(reference, tag, env["tmpdir"]):
+            scores.append(result)
 
-                # dump after every result to preserve work
-                with open(scorefile, "w") as f:
-                    json.dump(scores, f, indent="  ")
+            # dump after every result to preserve work
+            with open(scorefile, "w") as f:
+                json.dump(scores, f, indent="  ")
 
 
-def plot(profiles, env):
+def plot(profile, env):
     import pandas as pd
     scores = []
 
@@ -35,5 +34,4 @@ def plot(profiles, env):
     makedirs(env["plotdir"], exist_ok=True)
 
     df = pd.DataFrame(scores)
-    for profile in profiles:
-        profile.plot(df.loc[lambda df: df["profile"] == profile.name, :].copy(), env["plotdir"])
+    profile.plot(df.loc[lambda df: df["profile"] == profile.name, :].copy(), env["plotdir"])

@@ -28,8 +28,8 @@ def main():
         "-t", "--task", choices=["all", "transcode", "plot"],
         help="do only some of the tasks", default="all")
     parser.add_argument(
-        "-p", "--profile", nargs="*", choices=profilenames,
-        default=["voc-streaming"], help="only to testing for some comparison profile/s")
+        "-p", "--profile", choices=profilenames, default=["voc-streaming"],
+        help="only to testing for some comparison profile/s")
     parser.add_argument(
         "-s", "--source", default=path.join(basedir, "sources.json"),
         help="source description file")
@@ -38,11 +38,9 @@ def main():
 
     args = parser.parse_args()
 
-    print("Comparison Profiles:", args.profile)
+    print("Comparison Profile:", args.profile)
 
-    profs = []
-    for name in args.profile:
-        profs.append(next(p for p in profiles if p.name == name))
+    prof = next(p for p in profiles if p.name == args.profile)
 
     # transcode creates subformats and calculates scores, speed and actual rate
     if args.task == "all" or args.task == "transcode":
@@ -52,11 +50,11 @@ def main():
         print("Reference videos:", references)
 
         # compute scores
-        quality.compare(references, profs, args.tag, env)
+        quality.compare(references, prof, args.tag, env)
 
     # do plots
     if args.task == "all" or args.task == "plot":
-        quality.plot(profs, env)
+        quality.plot(prof, env)
 
 if __name__ == "__main__":
     main()
